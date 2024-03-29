@@ -55,8 +55,8 @@ func decode(_ i: MLXArray) -> String {
 let data = MLXArray(encode(text))
 
 let n = Int(0.9*Double(data.count))
-let trainData = data[..<n]
-let valData = data[n...]
+let trainData = data[..<n] // 90% train
+let valData = data[n...] // 10% test
 
 MLXRandom.seed(1337)
 enum Split: CaseIterable {
@@ -103,11 +103,12 @@ class Head: Module, UnaryLayer {
         let v = value(x)
 
         var weights = q.matmul(k.transposed(0, 2, 1)) * pow(MLXArray(C), -0.5)
-        weights = weights + mask[..<T, ..<T].asType(weights.dtype) // mask will either have -inf or 0. Anything + (-inf) = -inf
+        // mask will either have -inf or 0. Anything + (-inf) = -inf
+        weights = weights + mask[..<T, ..<T].asType(weights.dtype)
         weights = softMax(weights, axis: -1)
         weights = dropout(weights)
 
-        return weights.matmul(v) // (B, T, T) * (B, T, C)  = B, T, C
+        return weights.matmul(v)
     }
 }
 
@@ -170,7 +171,9 @@ public class BigramLanguageModel: Module, UnaryLayer {
         let nEmbed = HyperParameters.nEmbed
         tokenEmbeddingTable = Embedding(embeddingCount: vocabSize, dimensions: nEmbed)
         positionEmbeddingTable = Embedding(embeddingCount: vocabSize, dimensions: nEmbed)
-        blocks = Sequential(layers: (0..<numberOfBlocks).map { _ in Block(nEmbed: nEmbed, numberOfHeads: numberOfHeads) })
+        blocks = Sequential(layers: (0..<numberOfBlocks).map { _ in
+            Block(nEmbed: nEmbed, numberOfHeads: numberOfHeads)
+        })
         layerNorm = LayerNorm(dimensions: nEmbed)
         lmHead = Linear(nEmbed, vocabSize)
         super.init()
@@ -200,7 +203,11 @@ public class BigramLanguageModel: Module, UnaryLayer {
     }
 }
 
-let model = BigramLanguageModel(vocabSize: vocabSize, numberOfBlocks: HyperParameters.nLayer, numberOfHeads: HyperParameters.nHead)
+let model = BigramLanguageModel(
+    vocabSize: vocabSize,
+    numberOfBlocks: HyperParameters.nLayer,
+    numberOfHeads: HyperParameters.nHead
+)
 
 func train() {
     let optimizer = AdamW(learningRate: HyperParameters.learningRate)
@@ -228,11 +235,6 @@ func train() {
         return out
     }
 
-    func step(_ x: MLXArray, _ y: MLXArray) {
-        let (_, grads) = lg(model, x, y)
-        optimizer.update(model: model, gradients: grads)
-    }
-
     for epoch in 1...HyperParameters.maxIters {
         if epoch % HyperParameters.evalInterval == 0 {
             let losses = estimateLoss()
@@ -240,7 +242,8 @@ func train() {
         }
         let (xb, yb) = getBatch(.train, of: HyperParameters.batchSize)
 
-        step(xb, yb)
+        let (_, grads) = lg(model, xb, yb) // TODO: Figure out if this can be MLX.compile'd
+        optimizer.update(model: model, gradients: grads)
 
         eval(model, optimizer)
     }
