@@ -15,14 +15,15 @@ extension Array where Element: UnaryLayer {
     public func callAsFunction(_ x: MLXArray) -> [MLXArray] { map { $0(x) } }
 }
 
+// Validation loss in Karpathy's video was 1.4873. With the params below, I was able to hit a loss of 1.5579436
 enum HyperParameters {
     static let batchSize = 64
-    static let blockSize = 128
+    static let blockSize = 128 // 256 in Karpathy's video, but going beyond 128 spits out nans on my Mac
     static let maxIters = 5000
     static let evalInterval = 500
     static let learningRate: Float = 3e-4
     static let evalIters = 200
-    static let nEmbedPerHead = 32
+    static let nEmbedPerHead = 32 // 64 in Karpathy's video, but going beyond 32 spits out nans on my Mac
     static var nEmbed: Int { nEmbedPerHead * nHead }
     static let nHead = 6
     static let nLayer = 6
@@ -30,20 +31,15 @@ enum HyperParameters {
 }
 
 let text = try String(contentsOfFile: "/Users/rounak/Downloads/input.txt")
-let chars = Set(text)
-let sortedChars = chars.sorted()
+let sortedChars = Set(text).sorted()
 let vocabSize = sortedChars.count
-var stoi: [Character: Int] = [:]
-var itos: [Int: Character] = [:]
-for (i, c) in sortedChars.enumerated() {
-    stoi[c] = i
-    itos[i] = c
+var characterToInt: [Character: Int] = [:]
+var intToCharacter: [Int: Character] = [:]
+for (i, character) in sortedChars.enumerated() {
+    characterToInt[character] = i
+    intToCharacter[i] = character
 }
-func encode(_ ch: Character) -> Int { stoi[ch]! }
-func encode(_ s: String) -> [Int] { s.map { stoi[$0]! } }
-
-func decode(_ i: Int) -> Character { itos[i]! }
-func decode(_ i: [Int]) -> String { String(i.map { itos[$0]!}) }
+func encode(_ s: String) -> [Int] { s.map { characterToInt[$0]! } }
 func decode(_ i: MLXArray) -> String {
     let castedArray: [any BinaryInteger] = switch i.dtype {
     case .int32:
@@ -53,11 +49,10 @@ func decode(_ i: MLXArray) -> String {
     default:
         fatalError("\(i.dtype) not supported")
     }
-    return String(castedArray.map { itos[Int($0)]!})
+    return String(castedArray.map { intToCharacter[Int($0)]!})
 }
 
 let data = MLXArray(encode(text))
-
 
 let n = Int(0.9*Double(data.count))
 let trainData = data[..<n]
@@ -84,7 +79,6 @@ func getBatch(_ split: Split, of batchSize: Int) -> (MLXArray, MLXArray) {
     })
     return (x, y)
 }
-let (xb, yb) = getBatch(.train, of: 4)
 let mask = MLXNN.MultiHeadAttention.createAdditiveCausalMask(HyperParameters.blockSize)
 
 class Head: Module, UnaryLayer {
@@ -104,12 +98,12 @@ class Head: Module, UnaryLayer {
 
     func callAsFunction(_ x: MLX.MLXArray) -> MLX.MLXArray {
         let (T, C) = (x.dim(1), x.dim(2))
-        let k = key(x) // B, T, headSize
-        let q = query(x) // B, T, C
+        let k = key(x) // Dimensions: Batch, Time, headSize
+        let q = query(x) // Dimensions: B, T, headSize
         let v = value(x)
 
-        var weights = q.matmul(k.transposed(0, 2, 1)) * pow(MLXArray(C), -0.5) //B, T, C * B, C, T = B, T, T
-        weights = weights + mask[..<T, ..<T].asType(weights.dtype) // mask will either have -inf or 0
+        var weights = q.matmul(k.transposed(0, 2, 1)) * pow(MLXArray(C), -0.5)
+        weights = weights + mask[..<T, ..<T].asType(weights.dtype) // mask will either have -inf or 0. Anything + (-inf) = -inf
         weights = softMax(weights, axis: -1)
         weights = dropout(weights)
 
@@ -166,7 +160,6 @@ class Block: Module, UnaryLayer {
 }
 
 public class BigramLanguageModel: Module, UnaryLayer {
-
     let tokenEmbeddingTable: Embedding
     let positionEmbeddingTable: Embedding
     let blocks: Sequential
@@ -213,8 +206,7 @@ func train() {
     let optimizer = AdamW(learningRate: HyperParameters.learningRate)
 
     func loss(model: BigramLanguageModel, x: MLXArray, y: MLXArray) -> MLXArray {
-        let loss = crossEntropy(logits: model(x), targets: y, reduction: .mean)
-        return loss
+        crossEntropy(logits: model(x), targets: y, reduction: .mean)
     }
 
     let trainStart = Date.timeIntervalSinceReferenceDate
