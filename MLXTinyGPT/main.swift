@@ -22,7 +22,8 @@ enum HyperParameters {
     static let evalInterval = 500
     static let learningRate: Float = 3e-4
     static let evalIters = 200
-    static let nEmbed = 192
+    static let nEmbedPerHead = 32
+    static var nEmbed: Int { nEmbedPerHead * nHead }
     static let nHead = 6
     static let nLayer = 6
     static let dropout: Float = 0.2
@@ -248,7 +249,6 @@ func train() {
         let (xb, yb) = getBatch(.train, of: HyperParameters.batchSize)
 
         step(xb, yb)
-    //    print("Current batch loss: \(loss)")
 
         eval(model, optimizer)
     }
