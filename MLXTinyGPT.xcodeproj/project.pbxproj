@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		1218BBA12BA64641006BBCE4 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1218BBA02BA64641006BBCE4 /* main.swift */; };
+		1218BBA92BA6466C006BBCE4 /* MLX in Frameworks */ = {isa = PBXBuildFile; productRef = 1218BBA82BA6466C006BBCE4 /* MLX */; };
+		1218BBAB2BA6466C006BBCE4 /* MLXFFT in Frameworks */ = {isa = PBXBuildFile; productRef = 1218BBAA2BA6466C006BBCE4 /* MLXFFT */; };
+		1218BBAD2BA6466C006BBCE4 /* MLXLinalg in Frameworks */ = {isa = PBXBuildFile; productRef = 1218BBAC2BA6466C006BBCE4 /* MLXLinalg */; };
+		1218BBAF2BA6466C006BBCE4 /* MLXNN in Frameworks */ = {isa = PBXBuildFile; productRef = 1218BBAE2BA6466C006BBCE4 /* MLXNN */; };
+		1218BBB12BA6466C006BBCE4 /* MLXOptimizers in Frameworks */ = {isa = PBXBuildFile; productRef = 1218BBB02BA6466C006BBCE4 /* MLXOptimizers */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -32,6 +37,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1218BBB12BA6466C006BBCE4 /* MLXOptimizers in Frameworks */,
+				1218BBA92BA6466C006BBCE4 /* MLX in Frameworks */,
+				1218BBAD2BA6466C006BBCE4 /* MLXLinalg in Frameworks */,
+				1218BBAF2BA6466C006BBCE4 /* MLXNN in Frameworks */,
+				1218BBAB2BA6466C006BBCE4 /* MLXFFT in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +88,13 @@
 			dependencies = (
 			);
 			name = MLXTinyGPT;
+			packageProductDependencies = (
+				1218BBA82BA6466C006BBCE4 /* MLX */,
+				1218BBAA2BA6466C006BBCE4 /* MLXFFT */,
+				1218BBAC2BA6466C006BBCE4 /* MLXLinalg */,
+				1218BBAE2BA6466C006BBCE4 /* MLXNN */,
+				1218BBB02BA6466C006BBCE4 /* MLXOptimizers */,
+			);
 			productName = MLXTinyGPT;
 			productReference = 1218BB9D2BA64641006BBCE4 /* MLXTinyGPT */;
 			productType = "com.apple.product-type.tool";
@@ -90,7 +107,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1520;
-				LastUpgradeCheck = 1520;
+				LastUpgradeCheck = 1530;
 				TargetAttributes = {
 					1218BB9C2BA64641006BBCE4 = {
 						CreatedOnToolsVersion = 15.2;
@@ -106,6 +123,9 @@
 				Base,
 			);
 			mainGroup = 1218BB942BA64641006BBCE4;
+			packageReferences = (
+				1218BBA72BA6466C006BBCE4 /* XCRemoteSwiftPackageReference "mlx-swift" */,
+			);
 			productRefGroup = 1218BB9E2BA64641006BBCE4 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -161,6 +181,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -224,6 +245,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -249,6 +271,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = AJB2T8B3T9;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -260,6 +283,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = AJB2T8B3T9;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -289,6 +313,45 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1218BBA72BA6466C006BBCE4 /* XCRemoteSwiftPackageReference "mlx-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ml-explore/mlx-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.10.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1218BBA82BA6466C006BBCE4 /* MLX */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1218BBA72BA6466C006BBCE4 /* XCRemoteSwiftPackageReference "mlx-swift" */;
+			productName = MLX;
+		};
+		1218BBAA2BA6466C006BBCE4 /* MLXFFT */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1218BBA72BA6466C006BBCE4 /* XCRemoteSwiftPackageReference "mlx-swift" */;
+			productName = MLXFFT;
+		};
+		1218BBAC2BA6466C006BBCE4 /* MLXLinalg */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1218BBA72BA6466C006BBCE4 /* XCRemoteSwiftPackageReference "mlx-swift" */;
+			productName = MLXLinalg;
+		};
+		1218BBAE2BA6466C006BBCE4 /* MLXNN */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1218BBA72BA6466C006BBCE4 /* XCRemoteSwiftPackageReference "mlx-swift" */;
+			productName = MLXNN;
+		};
+		1218BBB02BA6466C006BBCE4 /* MLXOptimizers */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1218BBA72BA6466C006BBCE4 /* XCRemoteSwiftPackageReference "mlx-swift" */;
+			productName = MLXOptimizers;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1218BB952BA64641006BBCE4 /* Project object */;
 }
