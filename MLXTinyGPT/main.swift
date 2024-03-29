@@ -11,11 +11,8 @@ import MLXRandom
 import MLXNN
 import MLXOptimizers
 
-extension Array where Element: UnaryLayer {
-    public func callAsFunction(_ x: MLXArray) -> [MLXArray] { map { $0(x) } }
-}
-
-// Validation loss in Karpathy's video was 1.4873. With the params below, I was able to hit a loss of 1.5579436
+// Validation loss in Karpathy's video was 1.4873.
+// With the params below, I was able to hit a loss of 1.5579436
 enum HyperParameters {
     static let batchSize = 64
     static let blockSize = 128 // 256 in Karpathy's video, but going beyond 128 spits out nans on my Mac
@@ -30,7 +27,9 @@ enum HyperParameters {
     static let dropout: Float = 0.2
 }
 
-let text = try String(contentsOfFile: "/Users/rounak/Downloads/input.txt")
+let text = try String(
+    contentsOf: URL(string: "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt")!
+)
 let sortedChars = Set(text).sorted()
 let vocabSize = sortedChars.count
 var characterToInt: [Character: Int] = [:]
@@ -58,10 +57,12 @@ let n = Int(0.9*Double(data.count))
 let trainData = data[..<n] // 90% train
 let valData = data[n...] // 10% test
 
-MLXRandom.seed(1337)
+MLXRandom.seed(1337) // determinism
+
 enum Split: CaseIterable {
     case train, validation
 }
+
 func getBatch(_ split: Split, of batchSize: Int) -> (MLXArray, MLXArray) {
     let data = switch split {
     case .train:
@@ -79,6 +80,7 @@ func getBatch(_ split: Split, of batchSize: Int) -> (MLXArray, MLXArray) {
     })
     return (x, y)
 }
+
 let mask = MLXNN.MultiHeadAttention.createAdditiveCausalMask(HyperParameters.blockSize)
 
 class Head: Module, UnaryLayer {
@@ -103,11 +105,10 @@ class Head: Module, UnaryLayer {
         let v = value(x)
 
         var weights = q.matmul(k.transposed(0, 2, 1)) * pow(MLXArray(C), -0.5)
-        // mask will either have -inf or 0. Anything + (-inf) = -inf
+        // mask is filled with -inf in one triangle and 0 in other triangle. x + (-inf) = -inf. x + 0 = x
         weights = weights + mask[..<T, ..<T].asType(weights.dtype)
         weights = softMax(weights, axis: -1)
         weights = dropout(weights)
-
         return weights.matmul(v)
     }
 }
@@ -127,7 +128,7 @@ class MultiHeadAttention: Module, UnaryLayer {
     }
 
     func callAsFunction(_ x: MLXArray) -> MLX.MLXArray {
-        var out = concatenated(self.heads(x), axis: -1)
+        var out = concatenated(self.heads.map { $0(x) }, axis: -1)
         out = dropout(projection(out))
         return out
     }
@@ -160,12 +161,12 @@ class Block: Module, UnaryLayer {
     }
 }
 
-public class BigramLanguageModel: Module, UnaryLayer {
+public class LanguageModel: Module, UnaryLayer {
     let tokenEmbeddingTable: Embedding
     let positionEmbeddingTable: Embedding
     let blocks: Sequential
     let layerNorm: LayerNorm
-    let lmHead: Linear
+    let languageModelingHead: Linear
 
     public init(vocabSize: Int, numberOfBlocks: Int, numberOfHeads: Int) {
         let nEmbed = HyperParameters.nEmbed
@@ -175,24 +176,24 @@ public class BigramLanguageModel: Module, UnaryLayer {
             Block(nEmbed: nEmbed, numberOfHeads: numberOfHeads)
         })
         layerNorm = LayerNorm(dimensions: nEmbed)
-        lmHead = Linear(nEmbed, vocabSize)
+        languageModelingHead = Linear(nEmbed, vocabSize)
         super.init()
     }
 
     public func callAsFunction(_ x: MLXArray) -> MLXArray {
-        let xShape = x.shape
         let tokenEmbeddings = tokenEmbeddingTable(x)
-        let positionEmbedding = positionEmbeddingTable(MLXArray(0..<xShape[1]))
+        let positionEmbedding = positionEmbeddingTable(MLXArray(0..<x.shape[1]))
         var x = tokenEmbeddings + positionEmbedding
         x = blocks(x)
         x = layerNorm(x)
-        let logits = lmHead(x)
+        let logits = languageModelingHead(x)
         return logits
     }
 
     func generate(idx: MLXArray, maxNewTokens: Int) -> MLXArray {
         var newIdx = idx
         for _ in 0..<maxNewTokens {
+            // get most recent blockSize logits
             var logits = self(newIdx[from: -HyperParameters.blockSize, stride: 1, axis: -1])
             logits = logits[-1, axis: 1]
             let idxNext = categorical(logits, count: 1)
@@ -203,7 +204,7 @@ public class BigramLanguageModel: Module, UnaryLayer {
     }
 }
 
-let model = BigramLanguageModel(
+let model = LanguageModel(
     vocabSize: vocabSize,
     numberOfBlocks: HyperParameters.nLayer,
     numberOfHeads: HyperParameters.nHead
@@ -212,7 +213,7 @@ let model = BigramLanguageModel(
 func train() {
     let optimizer = AdamW(learningRate: HyperParameters.learningRate)
 
-    func loss(model: BigramLanguageModel, x: MLXArray, y: MLXArray) -> MLXArray {
+    func loss(model: LanguageModel, x: MLXArray, y: MLXArray) -> MLXArray {
         crossEntropy(logits: model(x), targets: y, reduction: .mean)
     }
 
