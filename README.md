@@ -18,6 +18,7 @@ He's definitely right, but it's cool to see that MLX's unified memory model and 
 1. Trying to scale up parameters like `blockSize` or `nEmbedPerHead` started giving me issues like nan weights or Metal errors. Figure out if there's a way to scale up further without hitting these issues
 2. Try to MLX.compile the training loop step. On the initial try, I hit some C++ exceptions, presumably because I wasn't capturing the right set of inputs.
 3. Better [tokenization](https://www.youtube.com/watch?v=zduSFxRajkE&t=781s)?
+4. Try to save the trained model
 
 # Sample generation
 Here's some Shakespeare text the model generated:
