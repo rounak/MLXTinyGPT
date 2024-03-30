@@ -227,8 +227,7 @@ func train() {
             let losses = MLX.zeros([HyperParameters.evalIters])
             for k in 0..<HyperParameters.evalIters {
                 let (xb, yb) = getBatch(split, of: HyperParameters.batchSize)
-                let logits = model(xb)
-                losses[k] = crossEntropy(logits: logits, targets: yb, reduction: .mean)
+                losses[k] = loss(model: model, x: xb, y: yb)
             }
             out[split] = losses.mean().item()
         }
