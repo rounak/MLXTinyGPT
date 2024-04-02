@@ -7,7 +7,7 @@ The code is all in a single Swift file (< 300 LOC) that implements the Transform
 Clone the project, open `MLXTinyGPT.xcodeproj` and run it. It will train the network first, and then generate text.
 
 # Performance
-Karpathy's scaled up network acheived a validation loss of 1.4873. On my M3 MBP with 18GB of Memory, I was able to achieve a validation loss of 1.5579436 with a slightly scaled down network, but same the number of epochs.
+Karpathy's scaled up network acheived a validation loss of 1.4873. On my M3 MBP with 18GB of Memory, I was able to achieve a validation loss of 1.538302 with a slightly scaled down network and dropout probability of 0.1, but same the number of epochs.
 
 Karpathy said:
 > "I would not run this on a CPU or Macbook. You'll have to break down the number of layers and the embedding dimension and so on".

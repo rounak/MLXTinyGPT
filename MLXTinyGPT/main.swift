@@ -11,6 +11,8 @@ import MLXRandom
 import MLXNN
 import MLXOptimizers
 
+MLXRandom.seed(1337) // determinism
+
 // Validation loss in Karpathy's video was 1.4873.
 // With the params below, I was able to hit a loss of 1.5579436
 enum HyperParameters {
@@ -56,8 +58,6 @@ let data = MLXArray(encode(text))
 let n = Int(0.9*Double(data.count))
 let trainData = data[..<n] // 90% train
 let valData = data[n...] // 10% test
-
-MLXRandom.seed(1337) // determinism
 
 enum Split: CaseIterable {
     case train, validation
@@ -253,5 +253,6 @@ func train() {
 train()
 
 let generationStart = Date.timeIntervalSinceReferenceDate
+model.train(false)
 print(decode(model.generate(idx: MLX.zeros([1, 1], type: Int32.self), maxNewTokens: 300)))
 print("Generation complete in \((Date.timeIntervalSinceReferenceDate - generationStart).formatted())")
