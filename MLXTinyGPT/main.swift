@@ -24,7 +24,7 @@ enum HyperParameters {
     static var nEmbed: Int { nEmbedPerHead * nHead }
     static let nHead = 6
     static let nLayer = 6
-    static let dropout: Float = 0.2
+    static let dropout: Float = 0.1
 }
 
 let text = try String(
