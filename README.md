@@ -1,7 +1,7 @@
 # Introduction
 This is a Swift implementation of Andrej Karpathy's excellent ["Let's build GPT"](https://www.youtube.com/watch?v=kCc8FmEb1nY) video. It uses the [MLX-Swift](https://github.com/ml-explore/mlx-swift) framework.
 
-The code is all in a single Swift file (< 300 LOC) that implements the Transformer architecture, and uses it to generate Shakespeare like text. 
+The code is all in a single Swift file (< 300 LOC) that implements the Transformer architecture, trains it for 5000 epochs, and then generates Shakespeare like text. 
 
 # How to run
 Clone the project, open `MLXTinyGPT.xcodeproj` and run it. It will train the network first, and then generate text.
