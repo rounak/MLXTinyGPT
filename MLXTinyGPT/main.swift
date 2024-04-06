@@ -40,7 +40,7 @@ for (i, character) in sortedChars.enumerated() {
     characterToInt[character] = i
     intToCharacter[i] = character
 }
-func encode(_ s: String) -> [Int] { s.map { characterToInt[$0]! } }
+func encode(_ s: String) -> MLXArray { MLXArray(s.map { characterToInt[$0]! }) }
 func decode(_ i: MLXArray) -> String {
     let castedArray: [any BinaryInteger] = switch i.dtype {
     case .int32:
@@ -53,7 +53,7 @@ func decode(_ i: MLXArray) -> String {
     return String(castedArray.map { intToCharacter[Int($0)]!})
 }
 
-let data = MLXArray(encode(text))
+let data = encode(text)
 
 let n = Int(0.9*Double(data.count))
 let trainData = data[..<n] // 90% train
@@ -250,7 +250,43 @@ func train() {
     print("Training complete in \((Date.timeIntervalSinceReferenceDate - trainStart).formatted())")
 }
 
-train()
+func ask(prompt: String) -> Bool {
+    print(prompt + " Y/n")
+
+    // Wait for user input
+    if let choice = readLine()?.lowercased() {
+        switch choice {
+        case "y":
+            return true
+        default:
+            return false
+        }
+    }
+    return false // Return nil if no input was provided
+}
+let path = FileManager.default.homeDirectoryForCurrentUser.appending(
+    path: "tinygptweights.safetensors",
+    directoryHint: .notDirectory
+)
+
+if ask(prompt: "Train model?") {
+    train()
+
+    func save() throws {
+        let flattened = model.parameters().flattened()
+        let flattenedDictionary = Dictionary(flattened) { v1, _ in v1 }
+        try MLX.save(arrays: flattenedDictionary, url: path)
+        print("Saved model weights at ~/tinygptweights.safetensors")
+    }
+
+    if ask(prompt: "Save model?") {
+        try save()
+    }
+} else {
+    print("Trying to load weights from ~/tinygptweights.safetensors")
+    let unloadedDict = try MLX.loadArrays(url: path)
+    model.update(parameters: ModuleParameters.unflattened(unloadedDict))
+}
 
 let generationStart = Date.timeIntervalSinceReferenceDate
 model.train(false)
