@@ -14,6 +14,7 @@
 		128D5A1E2BBFB2C4006F3652 /* MLXLinalg in Frameworks */ = {isa = PBXBuildFile; productRef = 128D5A1D2BBFB2C4006F3652 /* MLXLinalg */; };
 		128D5A202BBFB2C4006F3652 /* MLXNN in Frameworks */ = {isa = PBXBuildFile; productRef = 128D5A1F2BBFB2C4006F3652 /* MLXNN */; };
 		128D5A232BBFB3A1006F3652 /* MLXOptimizers in Frameworks */ = {isa = PBXBuildFile; productRef = 128D5A222BBFB3A1006F3652 /* MLXOptimizers */; };
+		12BED1E22BCB415100BA5768 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12BED1E12BCB415100BA5768 /* Utils.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +32,7 @@
 /* Begin PBXFileReference section */
 		1218BB9D2BA64641006BBCE4 /* MLXTinyGPT */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MLXTinyGPT; sourceTree = BUILT_PRODUCTS_DIR; };
 		1218BBA02BA64641006BBCE4 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		12BED1E12BCB415100BA5768 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +73,7 @@
 			isa = PBXGroup;
 			children = (
 				1218BBA02BA64641006BBCE4 /* main.swift */,
+				12BED1E12BCB415100BA5768 /* Utils.swift */,
 			);
 			path = MLXTinyGPT;
 			sourceTree = "<group>";
@@ -152,6 +155,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1218BBA12BA64641006BBCE4 /* main.swift in Sources */,
+				12BED1E22BCB415100BA5768 /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -250,41 +250,26 @@ func train() {
     print("Training complete in \((Date.timeIntervalSinceReferenceDate - trainStart).formatted())")
 }
 
-func ask(prompt: String) -> Bool {
-    print(prompt + " Y/n")
-
-    // Wait for user input
-    if let choice = readLine()?.lowercased() {
-        switch choice {
-        case "y":
-            return true
-        default:
-            return false
-        }
-    }
-    return false // Return nil if no input was provided
-}
-let path = FileManager.default.homeDirectoryForCurrentUser.appending(
+let path = FileManager.default.temporaryDirectory.appending(
     path: "tinygptweights.safetensors",
     directoryHint: .notDirectory
 )
 
-if ask(prompt: "Train model?") {
+if ask(prompt: "Train model from scratch?") {
     train()
-
     func save() throws {
         let flattened = model.parameters().flattened()
         let flattenedDictionary = Dictionary(flattened) { v1, _ in v1 }
         try MLX.save(arrays: flattenedDictionary, url: path)
-        print("Saved model weights at ~/tinygptweights.safetensors")
+        print("Saved model weights at \(path.absoluteString)")
     }
 
     if ask(prompt: "Save model?") {
         try save()
     }
 } else {
-    print("Trying to load weights from ~/tinygptweights.safetensors")
-    let unloadedDict = try MLX.loadArrays(url: path)
+    print("Trying to load weights from \(path.absoluteString). Will download if not present")
+    let unloadedDict = try loadWeights()
     model.update(parameters: ModuleParameters.unflattened(unloadedDict))
 }
 
