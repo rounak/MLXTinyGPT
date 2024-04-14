@@ -4,7 +4,7 @@ This is a Swift implementation of Andrej Karpathy's excellent ["Let's build GPT"
 The code is all in a single Swift file (< 300 LOC) that implements the Transformer architecture, trains it for 5000 epochs, and then generates Shakespeare like text. 
 
 # How to run
-Clone the project, open `MLXTinyGPT.xcodeproj` and run it. It will train the network first, and then generate text.
+Clone the project, open `MLXTinyGPT.xcodeproj` and run it. You can either train the network from scratch, or download weights to generate text.
 
 # Performance
 Karpathy's scaled up network acheived a validation loss of 1.4873. On my M3 MBP with 18GB of Memory, I was able to achieve a validation loss of 1.538302 with a slightly scaled down network and dropout probability of 0.1, but same the number of epochs.
